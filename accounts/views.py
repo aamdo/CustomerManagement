@@ -4,6 +4,8 @@ from django.forms import inlineformset_factory
 from .models import *
 from .forms import OrderForm
 from .filters import OrderFilter
+from django.core.paginator import Paginator
+
 # Create your views here.
 
 def home(request):
@@ -35,7 +37,13 @@ def homee(request):
 
 def products(request):
     ps = Product.objects.all()
-    context = {'ps': ps}
+    
+    paginator = Paginator(ps, 3) # Show 3 contacts per page.
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    
+    context = {'ps': page_obj}
     return render(request,'accounts/products.html',context)
 
 
