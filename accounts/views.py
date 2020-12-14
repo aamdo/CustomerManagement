@@ -25,12 +25,16 @@ def registerPage(request):
         form = CreateUserForm(request.POST)
         if form.is_valid():
             user = form.save()
-            usrname = form.cleaned_data.get('username')
+            username = form.cleaned_data.get('username')
 
             group = Group.objects.get(name='customer')
             user.groups.add(group)
-            
-            messages.success(request,'Account was created for '+user)
+            Customer.objects.create(
+                user=user,
+                name=user.username,
+                )
+
+            messages.success(request,'Account was created for '+ username)
             return redirect('login')
 
     context = {'form':form}
@@ -140,9 +144,21 @@ def createOrder(request, pk):
     context = {'formset':formset}
     return render(request,'accounts/order_form.html',context)
 
-
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['customer'])
 def userPage(request):
-    context = {}
+    orders = request.user.customer.order_set.all()
+
+    total_order = orders.count()
+    delivered = orders.filter(status='Delivered').count()
+    pinding  = orders.filter(status='Pending').count()
+    
+    context = {
+        'orders' :orders,
+        'total_order':total_order,
+        'delivered':delivered,
+        'pinding':pinding,
+        }
     return render(request,'accounts/user.html',context)
 
 
