@@ -6,7 +6,13 @@ from django import forms
     
 
 
-from .models import Order
+from .models import Customer, Order
+
+class CustomerForm(ModelForm):
+    class Meta:
+        model = Customer
+        feilds = '__all__'
+        exclude = ['user']
 
 class OrderForm(ModelForm):
     class Meta:
